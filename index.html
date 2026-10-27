@@ -68,6 +68,17 @@ li{margin:6px 0}
     </div>
   </div>
 
+  <div id="nokey" class="hidden">
+    <p>Ссылка из письма открылась не там, где установлены «Финансы», - здесь приложение вас не узнаёт.</p>
+    <div class="card">
+      <ol>
+        <li>Откройте «Финансы» с иконки на экране телефона.</li>
+        <li id="nokey-put"></li>
+      </ol>
+    </div>
+    <p class="muted">Или откройте эту ссылку в браузере, где ставили иконку: Safari на iPhone, Chrome на Android.</p>
+  </div>
+
   <a class="btn" id="open" href="#">Открыть финансы</a>
   <p class="muted" id="hint">Если «Финансы» не открылись сами - нажмите кнопку.</p>
 </div>
@@ -78,7 +89,13 @@ var FORM = 'https://script.google.com/macros/s/AKfycbxEHdwWIy3KVJePXB9Jd7S6QA66n
 var m = /[?&]k=([0-9a-f]{32})(?:&|$)/.exec(location.search);
 var key = m ? m[1] : '';
 try { if (key) localStorage.setItem('vm_finansy_k', key); else key = localStorage.getItem('vm_finansy_k') || ''; } catch (e) {}
-var target = FORM + (key ? '?k=' + key : '');
+// ссылка из письма: ?obj=12 - карточка объекта, ?ekran=zayavki - заявки; ключа в письме нет - берём запомненный
+var obj = (/[?&]obj=(\d+)(?:&|$)/.exec(location.search) || [])[1] || '';
+var ekran = /[?&]ekran=zayavki(?:&|$)/.test(location.search) ? 'zayavki' : '';
+var q = [];
+if (key) q.push('k=' + key);
+if (obj) q.push('obj=' + obj); else if (ekran) q.push('ekran=' + ekran);
+var target = FORM + (q.length ? '?' + q.join('&') : '');
 document.getElementById('open').href = target;
 var setup = /[?&]ustanovka/.test(location.search);
 if (setup) {
@@ -90,6 +107,12 @@ if (setup) {
   else if (/Android/.test(ua)) document.getElementById('ios').className = 'card hidden';
   // на экран «Домой» сохраняется адрес с ключом, но без ?ustanovka - с иконки «Финансы» откроются сразу
   try { history.replaceState(null, '', location.pathname + (key ? '?k=' + key : '')); } catch (e) {}
+} else if (!key && (obj || ekran)) {
+  document.getElementById('nokey').className = '';
+  document.getElementById('sub').textContent = 'Ссылка из письма';
+  document.getElementById('nokey-put').textContent = obj ? 'Перейдите в «Объекты» и выберите объект № ' + obj + '.' : 'Перейдите в «Заявки».';
+  document.getElementById('open').className = 'btn hidden';
+  document.getElementById('hint').className = 'hidden';
 } else {
   location.replace(target);
 }
