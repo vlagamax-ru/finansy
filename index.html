@@ -69,7 +69,7 @@ li{margin:6px 0}
   </div>
 
   <div id="nokey" class="hidden">
-    <p>Ссылка из письма открылась не там, где установлены «Финансы», - здесь приложение вас не узнаёт.</p>
+    <p>Ссылка из письма или Telegram открылась не там, где установлены «Финансы», - здесь приложение вас не узнаёт.</p>
     <div class="card">
       <ol>
         <li>Откройте «Финансы» с иконки на экране телефона.</li>
@@ -89,7 +89,7 @@ var FORM = 'https://script.google.com/macros/s/AKfycbxEHdwWIy3KVJePXB9Jd7S6QA66n
 var m = /[?&]k=([0-9a-f]{32})(?:&|$)/.exec(location.search);
 var key = m ? m[1] : '';
 try { if (key) localStorage.setItem('vm_finansy_k', key); else key = localStorage.getItem('vm_finansy_k') || ''; } catch (e) {}
-// ссылка из письма: ?obj=12 - карточка объекта, ?ekran=zayavki - заявки; ключа в письме нет - берём запомненный
+// ссылка из письма или Telegram: ?obj=12 - карточка объекта, ?ekran=zayavki - заявки; ключа в письме нет - берём запомненный
 var obj = (/[?&]obj=(\d+)(?:&|$)/.exec(location.search) || [])[1] || '';
 var ekran = /[?&]ekran=zayavki(?:&|$)/.test(location.search) ? 'zayavki' : '';
 var q = [];
@@ -109,7 +109,7 @@ if (setup) {
   try { history.replaceState(null, '', location.pathname + (key ? '?k=' + key : '')); } catch (e) {}
 } else if (!key && (obj || ekran)) {
   document.getElementById('nokey').className = '';
-  document.getElementById('sub').textContent = 'Ссылка из письма';
+  document.getElementById('sub').textContent = 'Ссылка из письма или Telegram';
   document.getElementById('nokey-put').textContent = obj ? 'Перейдите в «Объекты» и выберите объект № ' + obj + '.' : 'Перейдите в «Заявки».';
   document.getElementById('open').className = 'btn hidden';
   document.getElementById('hint').className = 'hidden';
